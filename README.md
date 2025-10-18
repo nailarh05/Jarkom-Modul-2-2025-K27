@@ -243,7 +243,7 @@ Lakukan dari client mana pun (yang sudah diarahkan ke DNS master/slave):
 ### **5. Konfigurasi DNS Slave pada Valmar**
 
 #### 🔹 Soal
-Buat DNS slave server pada **Valmar** untuk zona `k25.com`.
+Buat DNS slave server pada **Valmar** untuk zona `k27.com`.
 
 #### 🔹 Jawaban & Tata Cara
 1. Pada **Tirion**, tambahkan izin transfer di `/etc/bind/named.conf.local`:
@@ -265,7 +265,7 @@ Buat DNS slave server pada **Valmar** untuk zona `k25.com`.
    ```
 4. Tes di klien:
    ```bash
-   dig @10.77.2.3 k25.com
+   dig @10.77.2.3 k27.com
    ```
 
 ---
@@ -274,20 +274,20 @@ Buat DNS slave server pada **Valmar** untuk zona `k25.com`.
 
 #### 🔹 Soal
 Tambahkan subdomain dan CNAME berikut:
-- `www.k25.com` mengarah ke `sirion.k25.com`
-- `static.k25.com` mengarah ke `lindon.k25.com`
-- `app.k25.com` mengarah ke `vingilot.k25.com`
+- `www.k27.com` mengarah ke `sirion.k27.com`
+- `static.k27.com` mengarah ke `lindon.k27.com`
+- `app.k27.com` mengarah ke `vingilot.k27.com`
 
 #### 🔹 Jawaban & Tata Cara
-Edit file `/etc/bind/jarkom/db.k25.com` di Tirion:
+Edit file `/etc/bind/jarkom/db.k27.com` di Tirion:
 ```
 sirion  IN  A   10.77.3.2
 lindon  IN  A   10.77.3.3
 vingilot IN A   10.77.3.4
 
-www     IN  CNAME sirion.k25.com.
-static  IN  CNAME lindon.k25.com.
-app     IN  CNAME vingilot.k25.com.
+www     IN  CNAME sirion.k27.com.
+static  IN  CNAME lindon.k27.com.
+app     IN  CNAME vingilot.k27.com.
 ```
 
 ---
@@ -311,9 +311,9 @@ Buat reverse zone untuk subnet DMZ (10.77.3.0/24).
    ```
 3. Tambahkan PTR record:
    ```
-   2 IN PTR sirion.k25.com.
-   3 IN PTR lindon.k25.com.
-   4 IN PTR vingilot.k25.com.
+   2 IN PTR sirion.k27.com.
+   3 IN PTR lindon.k27.com.
+   4 IN PTR vingilot.k27.com.
    ```
 
 ---
@@ -321,7 +321,7 @@ Buat reverse zone untuk subnet DMZ (10.77.3.0/24).
 ### **8. Konfigurasi Web Server Statis**
 
 #### 🔹 Soal
-Lindon digunakan untuk web server statis `static.k25.com` menggunakan Nginx.
+Lindon digunakan untuk web server statis `static.k27.com` menggunakan Nginx.
 
 #### 🔹 Jawaban & Tata Cara
 1. Instal Nginx:
@@ -330,8 +330,8 @@ Lindon digunakan untuk web server statis `static.k25.com` menggunakan Nginx.
    ```
 2. Buat direktori web:
    ```bash
-   mkdir -p /var/www/static.k25
-   echo "Welcome to static.k25.com" > /var/www/static.k25/index.html
+   mkdir -p /var/www/static.k27
+   echo "Welcome to static.k27.com" > /var/www/static.k25/index.html
    ```
 3. Konfigurasi Nginx:
    ```bash
@@ -340,16 +340,16 @@ Lindon digunakan untuk web server statis `static.k25.com` menggunakan Nginx.
    ```
    server {
        listen 80;
-       server_name static.k25.com;
+       server_name static.k27.com;
 
-       root /var/www/static.k25;
+       root /var/www/static.k27;
        index index.html;
        autoindex on;
    }
    ```
 4. Aktifkan situs:
    ```bash
-   ln -s /etc/nginx/sites-available/static.k25 /etc/nginx/sites-enabled/
+   ln -s /etc/nginx/sites-available/static.k27 /etc/nginx/sites-enabled/
    service nginx restart
    ```
 
@@ -358,7 +358,7 @@ Lindon digunakan untuk web server statis `static.k25.com` menggunakan Nginx.
 ### **9. Konfigurasi Web Server Dinamis (PHP)**
 
 #### 🔹 Soal
-Vingilot digunakan untuk web dinamis `app.k25.com` menggunakan Nginx + PHP-FPM.
+Vingilot digunakan untuk web dinamis `app.k27.com` menggunakan Nginx + PHP-FPM.
 
 #### 🔹 Jawaban & Tata Cara
 1. Instal paket:
@@ -368,16 +368,16 @@ Vingilot digunakan untuk web dinamis `app.k25.com` menggunakan Nginx + PHP-FPM.
 2. Buat folder:
    ```bash
    mkdir -p /var/www/app.k25
-   echo "<?php phpinfo(); ?>" > /var/www/app.k25/index.php
+   echo "<?php phpinfo(); ?>" > /var/www/app.k27/index.php
    echo "<?php echo 'About page'; ?>" > /var/www/app.k25/about.php
    ```
 3. Konfigurasi Nginx:
    ```
    server {
        listen 80;
-       server_name app.k25.com;
+       server_name app.k27.com;
 
-       root /var/www/app.k25;
+       root /var/www/app.k27;
        index index.php;
 
        location / {
@@ -406,11 +406,11 @@ Lakukan pengujian untuk memastikan semua fitur berjalan dengan benar.
 #### 🔹 Jawaban & Tata Cara
 - **Ping domain utama**
   ```bash
-  ping k25.com
+  ping k27.com
   ```
 - **Test DNS slave**
   ```bash
-  dig @10.77.2.3 k25.com
+  dig @10.77.2.3 k27.com
   ```
 - **Test reverse DNS**
   ```bash
@@ -418,12 +418,12 @@ Lakukan pengujian untuk memastikan semua fitur berjalan dengan benar.
   ```
 - **Test web statis**
   ```bash
-  curl static.k25.com
+  curl static.k27.com
   ```
 - **Test web dinamis**
   ```bash
-  curl app.k25.com
-  curl app.k25.com/about
+  curl app.k27.com
+  curl app.k27.com/about
   ```
 
 Semua domain dan subdomain harus berhasil di-resolve dan ditampilkan sesuai konfigurasi.
