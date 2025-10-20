@@ -1,8 +1,5 @@
 # Jarkom-Modul-2-2025-K27
 
-**Praktikum Jaringan Komputer 2025**  
-Topik: DNS, Routing, NAT, Web Server, dan Reverse DNS  
-
 ---
 
 ## 👥 Anggota Kelompok
@@ -183,13 +180,13 @@ DNS Master akan menyimpan data zona utama (k27.com), sedangkan DNS Slave akan me
     ln -s /etc/init.d/named /etc/init.d/bind9
     service bind9 restart
    ```
- **Konfigurasi di Node Valmar (DNS Slave)**
- 1. Install paket BIND9 dan DNS Utilities:
+ ** B. Konfigurasi di Node Valmar (DNS Slave)**
+   1. Install paket BIND9 dan DNS Utilities:
    ```bash
     apt-get update
     apt-get install -y bind9 dnsutils
    ```  
- 2.Edit file konfigurasi global named.conf.options:
+  2.Edit file konfigurasi global named.conf.options:
    ```bash
    nano > /etc/bind/named.conf.options
    ```
@@ -240,204 +237,453 @@ Lakukan dari client mana pun (yang sudah diarahkan ke DNS master/slave):
 ```
 ---
 
-### **5. Konfigurasi DNS Slave pada Valmar**
+### **5. Penamaan Hostname dan Domain Setiap Node**
 
 #### 🔹 Soal
-Buat DNS slave server pada **Valmar** untuk zona `k27.com`.
+“Nama memberi arah,” kata Eonwe. Namai semua tokoh (hostname) sesuai glosarium, eonwe, earendil, elwing, cirdan, elrond, maglor, sirion, tirion, valmar, lindon, vingilot, dan verifikasi bahwa setiap host mengenali dan menggunakan hostname tersebut secara system-wide. Buat setiap domain untuk masing masing node sesuai dengan namanya (contoh: eru.<xxxx>.com) dan assign IP masing-masing juga. Lakukan pengecualian untuk node yang bertanggung jawab atas ns1 dan ns2
+
 
 #### 🔹 Jawaban & Tata Cara
-1. Pada **Tirion**, tambahkan izin transfer di `/etc/bind/named.conf.local`:
+1. Mengatur Hostname di Setiap Node:
+   Perintah ini memastikan nama host tersimpan permanen di /etc/hostname dan         aktif secara langsung.
    ```
-   allow-transfer { 10.77.2.3; };
-   also-notify { 10.77.2.3; };
+   # Node Eonwe
+   echo "eonwe" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Earendil
+   echo "earendil" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Elwing
+   echo "elwing" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Cirdan
+   echo "cirdan" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Elrond
+   echo "elrond" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Maglor
+   echo "maglor" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Sirion
+   echo "sirion" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Tirion
+   echo "tirion" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Valmar
+   echo "valmar" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Lindon
+   echo "lindon" > /etc/hostname
+   hostname -F /etc/hostname
+
+   # Node Vingilot
+   echo "vingilot" > /etc/hostname
+   hostname -F /etc/hostname
+
    ```
-2. Pada **Valmar**, tambahkan zona slave:
+2. Menambahkan Record Domain untuk Setiap Node di DNS Master (Tirion):
+   mendaftarkan semua node agar bisa diakses melalui domain <nama>.k25.com.
+  ```bash
+   nano /etc/bind/zones/db.k25.com
    ```
-   zone "k25.com" {
-       type slave;
-       masters { 10.77.2.2; };
-       file "/var/lib/bind/k25.com";
-   };
+   Tambahkan:
    ```
-3. Restart kedua server:
+   TTL    604800
+   @       IN      SOA     ns1.k25.com. admin.k27.com. (
+                              2025101103         ; Serial (naikkan!)
+                              604800         ; Refresh
+                              86400         ; Retry
+                              2419200         ; Expire
+                              604800 )       ; Negative Cache TTL
+
+   @               IN      A       10.77.3.2
+
+   @               IN      NS      ns1.k27.com.
+   @               IN      NS      ns2.k27.com.
+   ns1             IN      A        10.77.3.3
+   ns2             IN      A        10.77.3.4
+
+   eonwe.k27.com.      IN      A       10.77.1.1
+   earendil.k27.com.   IN      A       10.77.1.2
+   elwing.k27.com.     IN      A       10.77.1.3
+   cirdan.k27.com.     IN      A       10.77.2.2
+   elrond.k27.com.     IN      A       10.77.2.3
+   maglor.k27.com.     IN      A       10.77.2.4
+   sirion.k27.com.     IN      A       10.77.3.2
+   lindon.k27.com.     IN      A       10.77.3.5
+   vingilot.k27.com.   IN      A       10.77.3.6
+
+   ```
+3. Verifikasi Zona dan Restart DNS:
+   Setelah menulis file zona, periksa apakah formatnya benar dan restart layanan     DNS
    ```bash
    service bind9 restart
    ```
-4. Tes di klien:
+4. Tes di node klien:
+   Uji apakah hostname dan domain sudah bisa dikenali
    ```bash
-   dig @10.77.2.3 k27.com
+   dig erendil.k27.com
+    dig sirion.k27.com
    ```
 
 ---
 
-### **6. Menambahkan Subdomain dan CNAME**
+### **6. Verifikasi Zone Transfer (Sinkronisasi antara ns1 dan ns2)**
 
 #### 🔹 Soal
-Tambahkan subdomain dan CNAME berikut:
-- `www.k27.com` mengarah ke `sirion.k27.com`
-- `static.k27.com` mengarah ke `lindon.k27.com`
-- `app.k27.com` mengarah ke `vingilot.k27.com`
+Lonceng Valmar berdentang mengikuti irama Tirion. Pastikan zone transfer berjalan, Pastikan Valmar (ns2) telah menerima salinan zona terbaru dari Tirion (ns1). Nilai serial SOA di keduanya harus sama
 
 #### 🔹 Jawaban & Tata Cara
-Edit file `/etc/bind/jarkom/db.k27.com` di Tirion:
-```
-sirion  IN  A   10.77.3.2
-lindon  IN  A   10.77.3.3
-vingilot IN A   10.77.3.4
 
-www     IN  CNAME sirion.k27.com.
-static  IN  CNAME lindon.k27.com.
-app     IN  CNAME vingilot.k27.com.
+Cek SOA Record di Tirion (ns1):
 ```
+dig @10.77.3.3 k27.com SOA
+```
+Cek SOA Record di Valmar (ns2
+```
+dig @10.77.3.4 k27.com SOA
 
+```
 ---
 
-### **7. Konfigurasi Reverse DNS**
+### **7. Konfigurasi Reverse Zone (Pencarian Balik IP Address)**
 
 #### 🔹 Soal
-Buat reverse zone untuk subnet DMZ (10.77.3.0/24).
+
+Peta kota dan pelabuhan dilukis. Sirion sebagai gerbang, Lindon sebagai web statis, Vingilot sebagai web dinamis. Tambahkan pada zona <xxxx>.com A record untuk sirion.<xxxx>.com (IP Sirion), lindon.<xxxx>.com (IP Lindon), dan vingilot.<xxxx>.com (IP Vingilot). Tetapkan CNAME :
+www.<xxxx>.com → sirion.<xxxx>.com, 
+static.<xxxx>.com → lindon.<xxxx>.com, dan 
+app.<xxxx>.com → vingilot.<xxxx>.com. 
+Verifikasi dari dua klien berbeda bahwa seluruh hostname tersebut ter-resolve ke tujuan yang benar dan konsisten.
 
 #### 🔹 Jawaban & Tata Cara
-1. Tambahkan pada `named.conf.local`:
+1. Konfigurasi di Node Tirion:
+   ```bash
+   $TTL    604800
+   @       IN      SOA     ns1.k25.com. admin.k27.com. (
+                              2025101103         ; Serial (naikkan!)
+                              604800         ; Refresh
+                              86400         ; Retry
+                              2419200         ; Expire
+                              604800 )       ; Negative Cache TTL
+
+   @               IN      A       10.77.3.2
+
+   @               IN      NS      ns1.k27.com.
+   @               IN      NS      ns2.k27.com.
+   ns1             IN      A        10.77.3.3
+   ns2             IN      A        10.77.3.4
+
+   eonwe.k27.com.      IN      A       10.77.1.1
+   earendil.k27.com.   IN      A       10.77.1.2
+   elwing.k27.com.     IN      A       10.77.1.3
+   cirdan.k27.com.     IN      A       10.77.2.2
+   elrond.k27.com.     IN      A       10.77.2.3
+   maglor.k27.com.     IN      A       10.77.2.4
+   sirion.k27.com.     IN      A       10.77.3.2
+   lindon.k27.com.     IN      A       10.77.3.5
+   vingilot.k27.com.   IN      A       10.77.3.6
+
+
+   www.k27.com.        IN      CNAME   sirion.k27.com.
+   static.k27.com.     IN      CNAME   lindon.k27.com.
+   app.k27.com.        IN      CNAME   vingilot.k27.com
+
    ```
+   Periksa dan restart layanan BIND:
+   ```bash
+   named-checkzone k27.com /etc/bind/zones/db.k27.com
+   service named restart
+   ```
+2. Pengujian dari Node Manapun:
+   ```bash
+   dig www.k25.com
+   dig static.k25.com
+   dig app.k25.com
+
+   ```
+---
+
+### **8.Reverse Zone di ns1 (Tirion) dan ns2 (Valmar)**
+
+#### 🔹 Soal
+Setiap jejak harus bisa diikuti. Di Tirion (ns1) deklarasikan satu reverse zone untuk segmen DMZ tempat Sirion, Lindon, Vingilot berada. Di Valmar (ns2) tarik reverse zone tersebut sebagai slave, isi PTR untuk ketiga hostname itu agar pencarian balik IP address mengembalikan hostname yang benar, lalu pastikan query reverse untuk alamat Sirion, Lindon, Vingilot dijawab authoritative.
+trs la
+#### 🔹 Jawaban & Tata Cara
+1. Konfigurasi di Node Tirion (ns1):
+   ```bash
+   cat > /etc/bind/named.conf.local
+   ```
+   tambhkan :
+   ```bash
+
+   $TTL    604800
+   @       IN      SOA     ns1.k27.com. admin.k27.com. (
+                              2025101101         ; Serial
+                              604800         ; Refresh
+                              86400         ; Retry
+                              2419200         ; Expire
+                              604800 )       ; Negative Cache TTL
+   ;
+   ; Name Servers
+   @       IN      NS      ns1.k27.com.
+   @       IN      NS      ns2.k27.com.
+
+   ; PTR Records
+   2       IN      PTR     sirion.k27.com.
+   3       IN      PTR     ns1.k27.com.
+   4       IN      PTR     ns2.k27.com.
+   5       IN      PTR     lindon.k27.com.
+   6       IN      PTR     vingilot.k27.com.
+
+   ```
+   Periksa validitas dan restart layanan BIND :
+   ```bash
+   service named restart
+   ```
+2. Konfigurasi di Node Valmar (ns2)
+   ```bash
+     mkdir -p /etc/bind/zones
+   cat > /etc/bind/named.conf.local
+   ```
+   ```
+   zone "k27.com" {
+    type slave;
+    file "db.k27.com";
+    masters { 10.77.3.3; };
+   };
+
    zone "3.77.10.in-addr.arpa" {
-       type master;
-       file "/etc/bind/jarkom/db.3.77.10.in-addr.arpa";
+    type slave;
+    file "db.10.77.3";
+    masters { 10.77.3.3; };
    };
    ```
-2. Buat file zona:
+   Periksa validitas dan restart layanan BIND :
    ```bash
-   cp /etc/bind/db.local /etc/bind/jarkom/db.3.77.10.in-addr.arpa
+   service named restart
    ```
-3. Tambahkan PTR record:
-   ```
-   2 IN PTR sirion.k27.com.
-   3 IN PTR lindon.k27.com.
-   4 IN PTR vingilot.k27.com.
+3. Pengujian dari Node Manapun:
+   ```bash
+   dig -x 10.77.3.2
+   dig -x 10.77.3.5
+   dig -x 10.77.3.6
+
    ```
 
 ---
 
-### **8. Konfigurasi Web Server Statis**
+### **9. Konfigurasi Web Statis dengan Autoindex di Node Lindon**
 
 #### 🔹 Soal
-Lindon digunakan untuk web server statis `static.k27.com` menggunakan Nginx.
+Lampion Lindon dinyalakan. Jalankan web statis pada hostname static.<xxxx>.com dan buka folder arsip /annals/ dengan autoindex (directory listing) sehingga isinya dapat ditelusuri. Akses harus dilakukan melalui hostname, bukan IP..
 
 #### 🔹 Jawaban & Tata Cara
-1. Instal Nginx:
+1. Instalasi dan Persiapan Nginx:
    ```bash
-   apt install nginx -y
+   apt-get update
+   apt-get install -y nginx
+
    ```
-2. Buat direktori web:
+2. Membuat Konfigurasi Virtual Host static.k27.com : 
    ```bash
-   mkdir -p /var/www/static.k27
-   echo "Welcome to static.k27.com" > /var/www/static.k25/index.html
+     cat > /etc/nginx/sites-available/static.k27.com
    ```
-3. Konfigurasi Nginx:
-   ```bash
-   nano /etc/nginx/sites-available/static.k25
-   ```
+   Tambahkan
    ```
    server {
-       listen 80;
-       server_name static.k27.com;
-
-       root /var/www/static.k27;
-       index index.html;
-       autoindex on;
+    listen 80;
+    server_name static.k27.com lindon.k27.com;
+    
+    root /var/www/static;
+    index index.html;
+    
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    
+    location /annals/ {
+        alias /var/www/static/annals/;
+        autoindex on;
+        autoindex_exact_size off;
+        autoindex_localtime on;
+    }
    }
+
    ```
-4. Aktifkan situs:
+3. Mengaktifkan Virtual Host dan Struktur Folder:
+   ```
+   ln -sf /etc/nginx/sites-available/static.k27.com /etc/nginx/sites-enabled/
+   rm -f /etc/nginx/sites-enabled/default
+   mkdir -p /var/www/static/annals
+
+   ```
+4. Uji Konfigurasi dan Restart Nginx :
    ```bash
-   ln -s /etc/nginx/sites-available/static.k27 /etc/nginx/sites-enabled/
+     nginx -t
    service nginx restart
+
+   ```
+5. Pengujian dari Node Manapun
+   Lakukan pengujian akses melalui hostname, bukan IP:
+   ```
+   curl http://static.k27.com
+   curl http://static.k27.com/annals/
+
    ```
 
 ---
 
-### **9. Konfigurasi Web Server Dinamis (PHP)**
+### **10. Menjalankan Web Dinamis (PHP-FPM) di Node Vingilot**
 
 #### 🔹 Soal
-Vingilot digunakan untuk web dinamis `app.k27.com` menggunakan Nginx + PHP-FPM.
+Vingilot mengisahkan cerita dinamis. Jalankan web dinamis (PHP-FPM) pada hostname app.<xxxx>.com dengan beranda dan halaman about, serta terapkan rewrite sehingga /about berfungsi tanpa akhiran .php. Akses harus dilakukan melalui hostname.
 
 #### 🔹 Jawaban & Tata Cara
-1. Instal paket:
+1. Instalasi Web Server Nginx dan PHP-FPM
+  ```bash
+  apt-get update
+  apt-get install -y nginx php8.4-fpm
+
+  ```
+2. Konfigurasi Virtual Host app.k27.com
+  ```bash
+  cat > /etc/nginx/sites-available/app.k27.com
+  ```
+   tambahkan :
+  ```bash
+ server {
+    listen 80;
+    server_name app.k27.com vingilot.k27.com;
+    
+    root /var/www/app;
+    index index.php;
+    
+    location / {
+        try_files $uri $uri/ @rewrite;
+    }
+    
+    location @rewrite {
+        rewrite ^/(.+)$ /$1.php last;
+    }
+    
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+    
+    location ~ /\.ht {
+        deny all;
+    }
+      }
+
+  ```
+3. Aktivasi Virtual Host dan Pembuatan Direktori Web
+  ```bash
+  ln -sf /etc/nginx/sites-available/app.k27.com /etc/nginx/sites-enabled/
+  rm -f /etc/nginx/sites-enabled/default
+  mkdir -p /var/www/app
+
+  ```
+4. Membuat Halaman Utama (index.php)
+  ```bash
+  cat > /var/www/app/index.php << 'EOF'
+   <!DOCTYPE html>
+   <html>
+   <head>
+       <title>Vingilot - Dynamic Application</title>
+       <style>
+           body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        h1 { margin-bottom: 10px; }
+        .info { background: rgba(255,255,255,0.1); padding: 15px; border-radius:    5px; margin: 20px 0; }
+        a { color: #ffd700; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Vingilot</h1>
+    <p>The ship that sails through dynamic waters</p>
+    
+    <div class="info">
+        <h2>Server Information</h2>
+        <p><strong>Server Time:</strong> <?php echo date('Y-m-d H:i:s'); ?></p>
+        <p><strong>Client IP:</strong> <?php echo $_SERVER['REMOTE_ADDR']; ?></p>
+        <p><strong>User Agent:</strong> <?php echo $_SERVER['HTTP_USER_AGENT']; ?>   </p>
+    </div>
+    
+    <p><a href="/about">Learn more about Vingilot</a></p>
+   </body>
+   </html>
+
+  ```
+5. Membuat Halaman About (about.php)
    ```bash
-   apt install nginx php-fpm -y
+   cat > /var/www/app/about.php 
    ```
-2. Buat folder:
-   ```bash
-   mkdir -p /var/www/app.k25
-   echo "<?php phpinfo(); ?>" > /var/www/app.k27/index.php
-   echo "<?php echo 'About page'; ?>" > /var/www/app.k25/about.php
+   tambahkan :
+   
    ```
-3. Konfigurasi Nginx:
+   <!DOCTYPE html>
+   <html>
+   <head>
+    <title>About Vingilot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        h1 { margin-bottom: 10px; }
+        .content { background: rgba(255,255,255,0.1); padding: 20px; border-               radius: 5px; margin: 20px 0; }
+        a { color: #ffd700; }
+    </style>
+   </head>
+   <body>
+    <h1>About Vingilot</h1>
+    
+    <div class="content">
+        <h2>The Star Ship</h2>
+        <p>Vingilot adalah kapal yang dipandu oleh Earendil, membawa Silmaril          melintasi langit sebagai bintang paling terang.</p>
+        
+        <h3>Technical Details</h3>
+        <p><strong>Powered by:</strong> PHP <?php echo phpversion(); ?></p>
+        <p><strong>Server:</strong> Nginx</p>
+        <p><strong>Current Path:</strong> <?php echo $_SERVER['REQUEST_URI']; ?>         </p>
+        <p><strong>Access Time:</strong> <?php echo date('Y-m-d H:i:s'); ?></p>
+    </div>
+    
+    <p><a href="/">Back to Home</a></p>
+   </body>
+   </html>
    ```
-   server {
-       listen 80;
-       server_name app.k27.com;
+   6. Memberi Hak Akses dan Menjalankan Layanan
+      ```bash
+      chown -R www-data:www-data /var/www/app
+      nginx -t
+      service nginx restart
+      service php8.4-fpm restart
 
-       root /var/www/app.k27;
-       index index.php;
+      ```
 
-       location / {
-           try_files $uri $uri/ /index.php?$query_string;
-       }
-
-       location ~ \.php$ {
-           include snippets/fastcgi-php.conf;
-           fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
-       }
-   }
-   ```
-4. Aktifkan situs:
-   ```bash
-   ln -s /etc/nginx/sites-available/app.k25 /etc/nginx/sites-enabled/
-   service nginx restart
-   ```
-
----
-
-### **10. Pengujian Akhir**
-
-#### 🔹 Soal
-Lakukan pengujian untuk memastikan semua fitur berjalan dengan benar.
-
-#### 🔹 Jawaban & Tata Cara
-- **Ping domain utama**
-  ```bash
-  ping k27.com
-  ```
-- **Test DNS slave**
-  ```bash
-  dig @10.77.2.3 k27.com
-  ```
-- **Test reverse DNS**
-  ```bash
-  dig -x 10.77.3.2
-  ```
-- **Test web statis**
-  ```bash
-  curl static.k27.com
-  ```
-- **Test web dinamis**
-  ```bash
-  curl app.k27.com
-  curl app.k27.com/about
-  ```
-
-Semua domain dan subdomain harus berhasil di-resolve dan ditampilkan sesuai konfigurasi.
-
----
-
-## 💡 Kesimpulan
-Pada modul ini, seluruh sistem DNS dan web server berhasil dikonfigurasi secara lengkap, mulai dari routing, NAT, master-slave DNS, reverse DNS, hingga hosting web statis dan dinamis.
-
----
-
-## 📎 Lampiran
-Berisi screenshot hasil pengujian (`ping`, `dig`, `curl`) dan isi file konfigurasi penting:
-- `/etc/network/interfaces`
-- `/etc/bind/named.conf.local`
-- `/etc/bind/jarkom/db.k25.com`
-- `/etc/nginx/sites-available/...`
