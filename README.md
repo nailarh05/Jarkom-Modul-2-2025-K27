@@ -678,7 +678,7 @@ Vingilot mengisahkan cerita dinamis. Jalankan web dinamis (PHP-FPM) pada hostnam
    </body>
    </html>
    ```
-   6. Memberi Hak Akses dan Menjalankan Layanan
+6. Memberi Hak Akses dan Menjalankan Layanan
       ```bash
       chown -R www-data:www-data /var/www/app
       nginx -t
