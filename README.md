@@ -293,14 +293,14 @@ Lakukan dari client mana pun (yang sudah diarahkan ke DNS master/slave):
 
    ```
 2. Menambahkan Record Domain untuk Setiap Node di DNS Master (Tirion):
-   mendaftarkan semua node agar bisa diakses melalui domain <nama>.k25.com.
+   mendaftarkan semua node agar bisa diakses melalui domain <nama>.k27.com.
   ```bash
-   nano /etc/bind/zones/db.k25.com
+   nano /etc/bind/zones/db.k27.com
    ```
    Tambahkan:
    ```
    TTL    604800
-   @       IN      SOA     ns1.k25.com. admin.k27.com. (
+   @       IN      SOA     ns1.k27.com. admin.k27.com. (
                               2025101103         ; Serial (naikkan!)
                               604800         ; Refresh
                               86400         ; Retry
@@ -371,7 +371,7 @@ Verifikasi dari dua klien berbeda bahwa seluruh hostname tersebut ter-resolve ke
 1. Konfigurasi di Node Tirion:
    ```bash
    $TTL    604800
-   @       IN      SOA     ns1.k25.com. admin.k27.com. (
+   @       IN      SOA     ns1.k27.com. admin.k27.com. (
                               2025101103         ; Serial (naikkan!)
                               604800         ; Refresh
                               86400         ; Retry
@@ -408,9 +408,9 @@ Verifikasi dari dua klien berbeda bahwa seluruh hostname tersebut ter-resolve ke
    ```
 2. Pengujian dari Node Manapun:
    ```bash
-   dig www.k25.com
-   dig static.k25.com
-   dig app.k25.com
+   dig www.k27.com
+   dig static.k27.com
+   dig app.k27.com
 
    ```
 ---
