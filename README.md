@@ -6,7 +6,7 @@
 | Nama | NRP |
 |------|------|
 | Naila Raniyah Hanan | 5027241078|
-| Naufan Andi | 50272410 |
+| Naufan Andi | 5027241059 |
 
 ---
 
@@ -96,7 +96,7 @@ Pastikan setiap subnet dapat saling berkomunikasi melalui Eonwe.
     iptables -A FORWARD -i eth3 -o eth2 -j ACCEPT
 
    ```
-2. Tesnode elwing atau earendil :
+2. Tesnode elwing atau Earendil :
    ```bash
    ping 10.77.2.2 (ping cirdan) 
    ping 10.77.3.2 (ping sirion)
@@ -188,7 +188,7 @@ DNS Master akan menyimpan data zona utama (k27.com), sedangkan DNS Slave akan me
    ```  
   2.Edit file konfigurasi global named.conf.options:
    ```bash
-   nano > /etc/bind/named.conf.options
+   nano /etc/bind/named.conf.options
    ```
    Tambahkan: 
    ```bash
@@ -245,7 +245,7 @@ Lakukan dari client mana pun (yang sudah diarahkan ke DNS master/slave):
 
 #### 🔹 Jawaban & Tata Cara
 1. Mengatur Hostname di Setiap Node:
-   Perintah ini memastikan nama host tersimpan permanen di /etc/hostname dan         aktif secara langsung.
+   Perintah ini memastikan nama host tersimpan permanen di /etc/hostname dan aktif secara langsung.
    ```
    # Node Eonwe
    echo "eonwe" > /etc/hostname
@@ -342,7 +342,7 @@ Lakukan dari client mana pun (yang sudah diarahkan ke DNS master/slave):
 ### **6. Verifikasi Zone Transfer (Sinkronisasi antara ns1 dan ns2)**
 
 #### 🔹 Soal
-Lonceng Valmar berdentang mengikuti irama Tirion. Pastikan zone transfer berjalan, Pastikan Valmar (ns2) telah menerima salinan zona terbaru dari Tirion (ns1). Nilai serial SOA di keduanya harus sama
+Lonceng Valmar berdentang mengikuti irama Tirion. pastikan zone transfer berjalan, Pastikan Valmar (ns2) telah menerima salinan zona terbaru dari Tirion (ns1). Nilai serial SOA di keduanya harus sama
 
 #### 🔹 Jawaban & Tata Cara
 
