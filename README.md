@@ -6,7 +6,7 @@
 | Nama | NRP |
 |------|------|
 | Naila Raniyah Hanan | 5027241078|
-| Naufan Andi | 5027241059 |
+| Naufan Andi | 50272410 |
 
 ---
 
@@ -96,11 +96,12 @@ Pastikan setiap subnet dapat saling berkomunikasi melalui Eonwe.
     iptables -A FORWARD -i eth3 -o eth2 -j ACCEPT
 
    ```
-2. Tesnode elwing atau Earendil :
+2. Tesnode elwing atau earendil :
    ```bash
    ping 10.77.2.2 (ping cirdan) 
    ping 10.77.3.2 (ping sirion)
    ```
+<img width="645" height="534" alt="image" src="https://github.com/user-attachments/assets/b3779342-9874-4db3-a63c-480b7cceb62a" />
 
 ---
 
@@ -188,7 +189,7 @@ DNS Master akan menyimpan data zona utama (k27.com), sedangkan DNS Slave akan me
    ```  
   2.Edit file konfigurasi global named.conf.options:
    ```bash
-   nano /etc/bind/named.conf.options
+   nano > /etc/bind/named.conf.options
    ```
    Tambahkan: 
    ```bash
@@ -235,6 +236,8 @@ Lakukan dari client mana pun (yang sudah diarahkan ke DNS master/slave):
    dig ns2.k27.com
 
 ```
+<img width="670" height="632" alt="image" src="https://github.com/user-attachments/assets/fa86ca2c-0752-43e6-8016-3dbd3186862e" />
+
 ---
 
 ### **5. Penamaan Hostname dan Domain Setiap Node**
@@ -245,7 +248,7 @@ Lakukan dari client mana pun (yang sudah diarahkan ke DNS master/slave):
 
 #### 🔹 Jawaban & Tata Cara
 1. Mengatur Hostname di Setiap Node:
-   Perintah ini memastikan nama host tersimpan permanen di /etc/hostname dan aktif secara langsung.
+   Perintah ini memastikan nama host tersimpan permanen di /etc/hostname dan         aktif secara langsung.
    ```
    # Node Eonwe
    echo "eonwe" > /etc/hostname
@@ -336,13 +339,17 @@ Lakukan dari client mana pun (yang sudah diarahkan ke DNS master/slave):
    dig erendil.k27.com
     dig sirion.k27.com
    ```
+   <img width="683" height="388" alt="image" src="https://github.com/user-attachments/assets/529906d0-acbe-4aed-a374-b707187aa416" />
+   <img width="630" height="406" alt="image" src="https://github.com/user-attachments/assets/d33c6a2f-1d99-4809-b85b-0c7bc6afab75" />
+
+
 
 ---
 
 ### **6. Verifikasi Zone Transfer (Sinkronisasi antara ns1 dan ns2)**
 
 #### 🔹 Soal
-Lonceng Valmar berdentang mengikuti irama Tirion. pastikan zone transfer berjalan, Pastikan Valmar (ns2) telah menerima salinan zona terbaru dari Tirion (ns1). Nilai serial SOA di keduanya harus sama
+Lonceng Valmar berdentang mengikuti irama Tirion. Pastikan zone transfer berjalan, Pastikan Valmar (ns2) telah menerima salinan zona terbaru dari Tirion (ns1). Nilai serial SOA di keduanya harus sama
 
 #### 🔹 Jawaban & Tata Cara
 
@@ -350,11 +357,17 @@ Cek SOA Record di Tirion (ns1):
 ```
 dig @10.77.3.3 k27.com SOA
 ```
+<img width="645" height="275" alt="image" src="https://github.com/user-attachments/assets/4ab96339-0166-4c4c-929b-dccb3b16ff27" />
+<img width="651" height="294" alt="image" src="https://github.com/user-attachments/assets/d3cd5623-d04e-4b9a-8ae9-20c23b825ba0" />
+
+
 Cek SOA Record di Valmar (ns2
 ```
 dig @10.77.3.4 k27.com SOA
 
 ```
+<img width="657" height="387" alt="image" src="https://github.com/user-attachments/assets/5ecc1226-7937-4b9b-b850-7bf99b30f882" />
+
 ---
 
 ### **7. Konfigurasi Reverse Zone (Pencarian Balik IP Address)**
@@ -413,6 +426,10 @@ Verifikasi dari dua klien berbeda bahwa seluruh hostname tersebut ter-resolve ke
    dig app.k27.com
 
    ```
+   <img width="662" height="424" alt="image" src="https://github.com/user-attachments/assets/0b0cbc3c-d5fb-44fb-b343-8ee83d8b6454" />
+   <img width="642" height="390" alt="image" src="https://github.com/user-attachments/assets/63f5302f-c394-469b-b470-9314c8203fb9" />
+
+
 ---
 
 ### **8.Reverse Zone di ns1 (Tirion) dan ns2 (Valmar)**
@@ -481,6 +498,10 @@ trs la
    dig -x 10.77.3.6
 
    ```
+<img width="646" height="305" alt="image" src="https://github.com/user-attachments/assets/b4cd8a68-fd29-4c68-b536-573fa1f7b734" />
+<img width="678" height="375" alt="image" src="https://github.com/user-attachments/assets/74983896-b027-41d1-bcbb-8a2e76aee46d" />
+<img width="668" height="314" alt="image" src="https://github.com/user-attachments/assets/6831f5d0-b79d-460d-8307-2133a2b3d84f" />
+
 
 ---
 
@@ -542,6 +563,9 @@ Lampion Lindon dinyalakan. Jalankan web statis pada hostname static.<xxxx>.com d
    curl http://static.k27.com/annals/
 
    ```
+<img width="662" height="559" alt="image" src="https://github.com/user-attachments/assets/ce44f26a-a64f-4320-92c6-bff4010e2a5a" />
+<img width="650" height="597" alt="image" src="https://github.com/user-attachments/assets/8f7ff9a2-a610-485f-8036-a880363f2b0d" />
+
 
 ---
 
